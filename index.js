@@ -10,6 +10,7 @@ const uploadsDir = path.join(__dirname, "public", "uploads");
 app.use(express.static(__dirname + "/public"));
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 fs.mkdir(publicPath, {}, (error) => {
   if (error) {
     console.log(error.message);
@@ -107,7 +108,6 @@ app.get('/SignUp', (req, res) => {
 });
 app.post('/SignUp', (req, res) => {
   const { fullName, email, password, repeatPassword } = req.body;
-  console.log("see fullName is " + fullName + ", find why it is undefined and fix it.\n");
   // Check if passwords match
   if (password !== repeatPassword) {
     return res.status(400).send("Passwords do not match");
@@ -118,7 +118,6 @@ app.post('/SignUp', (req, res) => {
     email: email,
     password: password,
   };
-  console.log(JSON.stringify(newUser));
   // Define the path to the JSON file
   const loginsFilePath = path.join(__dirname, "logins.json");
   // Read the current contents of the JSON file
@@ -149,7 +148,6 @@ app.post('/SignUp', (req, res) => {
         return res.status(500).send("Error writing to logins file");
       }
       res.cookie('user', JSON.stringify(newUser), { maxAge: 3600000 });
-      console.log(JSON.stringify(newUser));
       res.redirect("/HomePage");
     });
   });
@@ -164,31 +162,36 @@ app.get('/HomePage', (req, res) => {
       <!DOCTYPE html>
         <body>
           <h1>Welcome to the Home Page!</h1>
-          <form action="/Login" method="post">
-            <label for="email">Email:</label>
-            <input type="text" id="email" name="email" required placeholder="Email"><br/>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required placeholder="Password"><br/>
-            <button type="submit">Login</button>
-          </form>
+          <p1>Full Name:</p1><p1 id="fullName"></p1>
+          <p1>Email:</p1><p1 id="email"></p1>
+          <p1>Password:</p1><p1 id="password"></p1>
+          <p1>Confirm Password:</p1><p1 id="confirmPasswordLabel"></p1>
           <script>
-            alert(document.cookie);
-            const userCookie = document.cookie.replace(/(?:(?:^|.*;\s*)user\s*=\s*([^;]*).*$)|^.*$/, "$1");
-            // Read the user email from the cookie
-            alert(userCookie);
-            const user = JSON.parse(userCookie);  // Parse the cookie value into an object
-            const userEmail = user.email;  // Extract the email
-            // If the cookie is present, store it in localStorage
-            alert(userEmail);
-            if (userEmail) {
-              localStorage.setItem('userEmail', userEmail);
-              alert('User email stored in localStorage');
+            function phase1(){
+              const userCookie = document.cookie.replace(/(?:(?:^|.*;\s*)user\s*=\s*([^;]*).*$)|^.*$/, "$1");
+              console.log(userCookie);
+              // Read the user from the cookie
+              const user = JSON.parse(decodeURIComponent(userCookie));  // Parse the cookie value into an object
+              const userEmail = user.email;  // Extract the email
+              // If the cookie is present, store it in localStorage
+              if (user) {
+                localStorage.setItem('user', user);
+                //alert('User stored in localStorage');
+              }
+              else {
+                //alert('No user found in cookies');
+              }
+              // You can access the value from localStorage using:
+              // const storedEmail = localStorage.getItem('userEmail');
             }
-            else {
-              alert('No user email found in cookies');
+            function phase2(){
+              const user = localStorage.getItem('user');
+              document.getElementById('fullName').innerText = user.fullName;
+              document.getElementById('email').innerText = user.email;
+              document.getElementById('password').innerText = user.password;
             }
-            // You can access the value from localStorage using:
-            // const storedEmail = localStorage.getItem('userEmail');
+            phase1();
+            phase2();
           </script>
         </body>
       </html>
