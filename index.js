@@ -162,30 +162,21 @@ app.get('/HomePage', (req, res) => {
       <!DOCTYPE html>
         <body>
           <h1>Welcome to the Home Page!</h1>
-          <p1>Full Name:</p1><p1 id="fullName"></p1>
-          <p1>Email:</p1><p1 id="email"></p1>
-          <p1>Password:</p1><p1 id="password"></p1>
-          <p1>Confirm Password:</p1><p1 id="confirmPasswordLabel"></p1>
+          <p1>Full Name:</p1><p1 id="fullName"></p1><br/>
+          <p1>Email:</p1><p1 id="email"></p1><br/>
+          <p1>Password:</p1><p1 id="password"></p1><br/>
           <script>
             function phase1(){
               const userCookie = document.cookie.replace(/(?:(?:^|.*;\s*)user\s*=\s*([^;]*).*$)|^.*$/, "$1");
-              console.log(userCookie);
               // Read the user from the cookie
               const user = JSON.parse(decodeURIComponent(userCookie));  // Parse the cookie value into an object
-              const userEmail = user.email;  // Extract the email
               // If the cookie is present, store it in localStorage
               if (user) {
-                localStorage.setItem('user', user);
-                //alert('User stored in localStorage');
+                localStorage.setItem('user', JSON.stringify(user));
               }
-              else {
-                //alert('No user found in cookies');
-              }
-              // You can access the value from localStorage using:
-              // const storedEmail = localStorage.getItem('userEmail');
             }
             function phase2(){
-              const user = localStorage.getItem('user');
+              const user = JSON.parse(localStorage.getItem('user'));
               document.getElementById('fullName').innerText = user.fullName;
               document.getElementById('email').innerText = user.email;
               document.getElementById('password').innerText = user.password;
